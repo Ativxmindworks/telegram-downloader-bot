@@ -1,0 +1,79 @@
+main-py
+import os
+from telegram import Update
+from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
+import yt_dlp
+
+# Replace with your bot token
+TELEGRAM_BOT_TOKEN = "7753815413:AAHjZsSavrb912qdWaX0eP70iXJurJ2Snf4"
+
+def download_media(url):
+    ydl_opts = {
+        'outtmpl': '%(title)s.%(ext)s',
+        'format': 'best',
+        'quiet': True
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        return ydl.prepare_filename(info)
+
+# ✅ Use async for the latest version
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    url = update.message.text.strip()
+    message = await update.message.reply_text("🔄 Downloading...")
+    try:
+        file_path = download_media(url)
+        with open(file_path, 'rb') as file:
+            await update.message.reply_document(file)
+        os.remove(file_path)
+        await message.edit_text("✅ Done!")
+    except Exception as e:
+        await message.edit_text(f"❌ Error:\n{str(e)}")
+
+def main():
+    app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    print("🤖 Bot is running...")
+    app.run_polling()
+
+if name == "main":
+    main()
+
+#ATIV Mindworks, [15/7/2025 1:57 PM]
+import os
+from telegram import Update
+from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
+import yt_dlp
+
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+def download_media(url):
+    ydl_opts = {
+        'outtmpl': '%(title)s.%(ext)s',
+        'format': 'best',
+        'quiet': True
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        return ydl.prepare_filename(info)
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    url = update.message.text.strip()
+    message = await update.message.reply_text("🔄 Downloading...")
+    try:
+        file_path = download_media(url)
+        with open(file_path, 'rb') as file:
+            await update.message.reply_document(file)
+        os.remove(file_path)
+        await message.edit_text("✅ Done!")
+    except Exception as e:
+        await message.edit_text(f"❌ Error:\n{str(e)}")
+
+def main():
+    app = ApplicationBuilder().token(TOKEN).build()
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    print("🤖 Bot is running on Railway...")
+    app.run_polling()
+
+if name == "main":
+    main()
